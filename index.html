@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Explore Around My Stay – Zimbabwe</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 128 64%27%3E%3Crect width=%27128%27 height=%2764%27 fill=%27%23006400%27/%3E%3Crect y=%279%27 width=%27128%27 height=%2710%27 fill=%27%23ffd200%27/%3E%3Crect y=%2718%27 width=%27128%27 height=%2710%27 fill=%27%23d40000%27/%3E%3Crect y=%2727%27 width=%27128%27 height=%2710%27 fill=%27%23000%27/%3E%3Crect y=%2737%27 width=%27128%27 height=%2710%27 fill=%27%23d40000%27/%3E%3Crect y=%2746%27 width=%27128%27 height=%2710%27 fill=%27%23ffd200%27/%3E%3Cpolygon points=%270,0 0,64 34,32%27 fill=%27%23fff%27/%3E%3C/svg%3E">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#10302d;--bg:#eef3f1;--card:#fff;--teal:#1b7a78;--sun:#e8b130;--mute:#5d6b68;--line:#cfdad7}
+*{box-sizing:border-box}
+body{margin:0;font-family:'Bricolage Grotesque',system-ui,sans-serif;background:var(--bg);color:var(--ink);line-height:1.5}
+header{background:var(--ink);color:#eef3f1;padding:28px 5vw 22px}
+.brand{display:flex;align-items:center;gap:12px;margin-bottom:18px}
+.flag{width:64px;height:32px;flex:none;filter:drop-shadow(0 1px 3px rgba(0,0,0,.45))}
+.brand-text{display:flex;flex-direction:column;line-height:1.15}
+.brand-text b{font-size:1.1rem;font-weight:800;letter-spacing:-.01em}
+.brand-text span{font-size:.82rem;color:#b9cfca}
+header h1{margin:0;font-size:clamp(1.8rem,4.5vw,3.2rem);font-weight:800;letter-spacing:-.02em;max-width:18ch;line-height:1.05}
+header p{margin:10px 0 0;max-width:60ch;color:#b9cfca}
+nav{display:flex;gap:8px;margin-top:18px;flex-wrap:wrap}
+nav button{background:transparent;color:#eef3f1;border:1px solid #3d5e59;padding:8px 14px;border-radius:6px;font:inherit;cursor:pointer}
+nav button.on{background:var(--sun);color:var(--ink);border-color:var(--sun);font-weight:600}
+main{padding:20px 5vw 40px}
+.grid{display:grid;grid-template-columns:minmax(300px,1fr) minmax(300px,1.1fr);gap:20px}
+@media(max-width:860px){.grid{grid-template-columns:1fr}}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px;margin-bottom:16px}
+.panel h2{margin:0 0 10px;font-size:1.15rem}
+label{display:block;font-size:.85rem;color:var(--mute);margin:10px 0 4px}
+select,input,textarea,.btn{font:inherit;padding:9px 10px;border:1px solid var(--line);border-radius:6px;width:100%;background:#fff;color:var(--ink)}
+.btn{width:auto;background:var(--teal);color:#fff;border:0;cursor:pointer;font-weight:600}
+.btn.alt{background:#fff;color:var(--teal);border:1px solid var(--teal)}
+.btn.sm{padding:5px 10px;font-size:.85rem}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.row>*{flex:1}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.chip{border:1px solid var(--line);border-radius:99px;padding:4px 12px;cursor:pointer;background:#fff;font-size:.88rem;width:auto;flex:none}
+.chip.on{background:var(--teal);color:#fff;border-color:var(--teal)}
+.place{border-top:1px solid var(--line);padding:12px 0}
+.place:first-child{border-top:0}
+.place h3{margin:0;font-size:1rem}
+.tag{font-size:.78rem;background:#e3efec;color:var(--teal);border-radius:4px;padding:1px 7px;margin-left:6px}
+.meta{color:var(--mute);font-size:.88rem;margin:3px 0 8px}
+.dist{font-weight:800;color:var(--teal)}
+#map{height:380px;border-radius:10px;border:1px solid var(--line);margin-bottom:16px}
+.day{border-left:4px solid var(--sun);padding-left:12px;margin:12px 0}
+.day h3{margin:0 0 4px;font-size:1rem}
+.hidden{display:none}
+.empty{color:var(--mute);font-size:.92rem}
+a{color:var(--teal)}
+table{width:100%;border-collapse:collapse;font-size:.9rem}
+td,th{text-align:left;padding:6px;border-bottom:1px solid var(--line)}
+:focus-visible{outline:3px solid var(--sun);outline-offset:2px}
+@media print{header,nav,#map,.noprint{display:none!important}}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand">
+    <svg class="flag" viewBox="0 0 128 64" role="img" aria-label="Flag of Zimbabwe">
+      <defs><clipPath id="fc"><rect width="128" height="64" rx="6"/></clipPath></defs>
+      <g clip-path="url(#fc)">
+        <rect y="0" width="128" height="9.2" fill="#006400"/>
+        <rect y="9.1" width="128" height="9.2" fill="#ffd200"/>
+        <rect y="18.2" width="128" height="9.2" fill="#d40000"/>
+        <rect y="27.3" width="128" height="9.4" fill="#000"/>
+        <rect y="36.6" width="128" height="9.2" fill="#d40000"/>
+        <rect y="45.7" width="128" height="9.2" fill="#ffd200"/>
+        <rect y="54.8" width="128" height="9.2" fill="#006400"/>
+        <polygon points="0,0 0,64 34,32" fill="#fff" stroke="#000" stroke-width="2" stroke-linejoin="round"/>
+        <polygon points="11,24 12.8,29.5 18.6,29.5 13.9,33 15.7,38.5 11,35.1 6.3,38.5 8.1,33 3.4,29.5 9.2,29.5" fill="#d40000"/>
+        <path d="M8.2 36 L9.6 31 L8.6 29.6 L10.6 28.8 L12.4 30.4 L12.2 32.2 L13.8 36 L11 34.6 Z" fill="#ffd200"/>
+      </g>
+    </svg>
+    <div class="brand-text"><b>Zimbabwe Stay &amp; Explore</b><span>Tourism discovery system</span></div>
+  </div>
+  <h1>Explore around my stay</h1>
+  <p>Pick your hotel in Victoria Falls, Nyanga or Masvingo. See what is nearby, how far it is, how to get there, and build your itinerary.</p>
+  <nav>
+    <button class="on" data-view="explore">Explore</button>
+    <button data-view="admin">Admin</button>
+  </nav>
+</header>
+<main>
+
+<!-- ============ TOURIST VIEW ============ -->
+<section id="explore">
+<div class="grid">
+  <div>
+    <div class="panel">
+      <h2>Where are you staying?</h2>
+      <label for="dest">Destination</label>
+      <select id="dest"></select>
+      <label for="hotel">Hotel or lodge</label>
+      <select id="hotel"></select>
+      <div class="row">
+        <div><label for="days">Days staying</label><input id="days" type="number" min="1" max="10" value="3"></div>
+        <div><label for="radius">Search radius: <b id="rv">60</b> km</label><input id="radius" type="range" min="5" max="150" value="60"></div>
+      </div>
+      <label>What interests you?</label>
+      <div class="chips" id="cats"></div>
+      <p class="meta" id="hotelInfo"></p>
+    </div>
+    <div class="panel">
+      <h2>Nearby, closest first</h2>
+      <div id="results"></div>
+    </div>
+  </div>
+
+  <div>
+    <div id="map" role="application" aria-label="Map of the hotel and nearby places"></div>
+    <div class="panel">
+      <h2>My itinerary</h2>
+      <div class="row noprint" style="margin-bottom:8px">
+        <button class="btn" id="auto">Suggest a plan</button>
+        <button class="btn alt" id="clear">Clear</button>
+        <button class="btn alt" id="print">Print</button>
+      </div>
+      <div id="plan"></div>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- ============ ADMIN VIEW ============ -->
+<section id="admin" class="hidden">
+  <div class="panel" id="lock">
+    <h2>Admin sign-in</h2>
+    <p class="meta">Enter the administrator PIN to update tourism information.</p>
+    <div class="row"><input id="pin" type="password" placeholder="PIN" aria-label="PIN"><button class="btn" id="unlock" style="flex:none">Sign in</button></div>
+  </div>
+  <div id="adminBody" class="hidden">
+  <div class="row noprint" style="justify-content:flex-end;margin-bottom:12px"><button class="btn alt" id="logout" style="flex:none">Log out</button></div>
+  <div class="grid">
+    <div class="panel">
+      <h2>Add a hotel or lodge</h2>
+      <form id="hf">
+        <label>Name</label><input name="name" required>
+        <label>Destination</label><select name="dest" class="destSel"></select>
+        <div class="row"><div><label>Latitude</label><input name="lat" type="number" step="any" required></div><div><label>Longitude</label><input name="lng" type="number" step="any" required></div></div>
+        <label>Description</label><textarea name="desc" rows="2"></textarea>
+        <label>Price from (USD per night)</label><input name="price" type="number">
+        <p><button class="btn">Save hotel</button></p>
+      </form>
+    </div>
+    <div class="panel">
+      <h2>Add an attraction, activity, restaurant or cultural site</h2>
+      <form id="pf">
+        <label>Name</label><input name="name" required>
+        <div class="row"><div><label>Destination</label><select name="dest" class="destSel"></select></div>
+        <div><label>Type</label><select name="cat" class="catSel"></select></div></div>
+        <div class="row"><div><label>Latitude</label><input name="lat" type="number" step="any" required></div><div><label>Longitude</label><input name="lng" type="number" step="any" required></div></div>
+        <label>Description</label><textarea name="desc" rows="2"></textarea>
+        <div class="row"><div><label>Opening hours</label><input name="hours"></div><div><label>Cost</label><input name="cost"></div></div>
+        <p><button class="btn">Save place</button></p>
+      </form>
+    </div>
+  </div>
+  <div class="panel">
+    <h2>Records</h2>
+    <div class="row noprint" style="margin-bottom:8px">
+      <button class="btn alt" id="export">Download data (JSON)</button>
+      <button class="btn alt" id="reset">Reset to sample data</button>
+    </div>
+    <div style="overflow-x:auto"><table id="adminTable"></table></div>
+  </div>
+  </div>
+</section>
+</main>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script>
+/* =====================================================================
+   1. DATA  (objective 1: centralised database)
+   ===================================================================== */
+const DB_KEY = 'zwTourism.v1';
+const DESTS = ['Victoria Falls', 'Nyanga', 'Masvingo'];
+const CATS = { attraction: 'Attractions', activity: 'Activities', food: 'Restaurants', culture: 'Culture' };
+
+const SEED = {
+  hotels: [
+    {id:'h1', name:'The Victoria Falls Hotel', dest:'Victoria Falls', lat:-17.9244, lng:25.8458, price:350, desc:'Colonial-era hotel with views of the Victoria Falls Bridge.'},
+    {id:'h2', name:'Victoria Falls Safari Lodge', dest:'Victoria Falls', lat:-17.9610, lng:25.8010, price:300, desc:'Lodge overlooking a waterhole on the edge of the national park.'},
+    {id:'h3', name:'Troutbeck Resort', dest:'Nyanga', lat:-18.2800, lng:32.7520, price:120, desc:'Mountain resort with a lake, trout fishing and cool highland air.'},
+    {id:'h4', name:'Montclair Hotel', dest:'Nyanga', lat:-18.2260, lng:32.7440, price:90, desc:'Hotel in the Nyanga highlands near the village.'},
+    {id:'h5', name:'Great Zimbabwe Hotel', dest:'Masvingo', lat:-20.2640, lng:30.9330, price:95, desc:'Hotel a short walk from the Great Zimbabwe monument.'},
+    {id:'h6', name:'Lodge at Lake Mutirikwi', dest:'Masvingo', lat:-20.2150, lng:31.0100, price:110, desc:'Lakeside lodge in Kyle Recreational Park.'}
+  ],
+  places: [
+    {id:'p1', name:'Victoria Falls National Park', dest:'Victoria Falls', cat:'attraction', lat:-17.9243, lng:25.8572, hours:'06:00-18:00', cost:'USD 30', desc:'Walk the rainforest trail to view the main falls.'},
+    {id:'p2', name:'Victoria Falls Bridge', dest:'Victoria Falls', cat:'activity', lat:-17.9292, lng:25.8590, hours:'08:00-17:00', cost:'From USD 50', desc:'Bridge walk, bungee jump and gorge swing over the Zambezi.'},
+    {id:'p3', name:'Zambezi Sunset River Cruise', dest:'Victoria Falls', cat:'activity', lat:-17.8630, lng:25.8230, hours:'15:30-18:30', cost:'From USD 60', desc:'Evening cruise with wildlife and drinks on the upper Zambezi.'},
+    {id:'p4', name:'The Boma Place of Eating', dest:'Victoria Falls', cat:'food', lat:-17.9650, lng:25.8160, hours:'18:00-22:00', cost:'USD 55', desc:'Traditional Zimbabwean dinner with drumming and dance.'},
+    {id:'p5', name:'Mukuni Village', dest:'Victoria Falls', cat:'culture', lat:-17.9970, lng:25.8620, hours:'09:00-16:00', cost:'From USD 20', desc:'Guided visit to a traditional village, market and crafts.'},
+    {id:'p6', name:'Zambezi National Park', dest:'Victoria Falls', cat:'attraction', lat:-17.8700, lng:25.7500, hours:'06:00-18:00', cost:'USD 15', desc:'Game drives along the Zambezi riverfront.'},
+    {id:'p7', name:'Mutarazi Falls', dest:'Nyanga', cat:'attraction', lat:-18.3330, lng:32.8530, hours:'08:00-17:00', cost:'USD 10', desc:"One of Africa's tallest waterfalls, with a skywalk viewpoint."},
+    {id:'p8', name:'Nyangombe Falls', dest:'Nyanga', cat:'attraction', lat:-18.2770, lng:32.7870, hours:'08:00-17:00', cost:'USD 5', desc:'Short walk to a series of cascades in the Nyanga National Park.'},
+    {id:'p9', name:'Mount Nyangani Hike', dest:'Nyanga', cat:'activity', lat:-18.2930, lng:32.8480, hours:'06:00-14:00', cost:'USD 25 with guide', desc:"Guided climb of Zimbabwe's highest mountain."},
+    {id:'p10', name:'Troutbeck Trout Fishing', dest:'Nyanga', cat:'activity', lat:-18.2790, lng:32.7500, hours:'06:00-18:00', cost:'USD 20', desc:'Fly fishing on the resort lake.'},
+    {id:'p11', name:'Nyanga Village Craft Market', dest:'Nyanga', cat:'culture', lat:-18.2150, lng:32.7480, hours:'08:00-16:00', cost:'Free entry', desc:'Local stone sculpture, baskets and honey.'},
+    {id:'p12', name:'Rhodes Hotel Dining Room', dest:'Nyanga', cat:'food', lat:-18.2160, lng:32.7490, hours:'07:00-21:00', cost:'USD 20', desc:'Home-style meals in a highland setting.'},
+    {id:'p13', name:'Great Zimbabwe National Monument', dest:'Masvingo', cat:'culture', lat:-20.2675, lng:30.9340, hours:'06:00-18:00', cost:'USD 15', desc:'UNESCO World Heritage Site with the Hill Complex and Great Enclosure.'},
+    {id:'p14', name:'Lake Mutirikwi Boat Cruise', dest:'Masvingo', cat:'activity', lat:-20.2100, lng:31.0050, hours:'09:00-17:00', cost:'USD 25', desc:'Boat trips and fishing on the lake.'},
+    {id:'p15', name:'Kyle Game Park', dest:'Masvingo', cat:'attraction', lat:-20.2300, lng:31.0000, hours:'06:00-18:00', cost:'USD 10', desc:'Rhino, giraffe and antelope with walking and driving routes.'},
+    {id:'p16', name:'Masvingo Craft Centre', dest:'Masvingo', cat:'culture', lat:-20.0640, lng:30.8300, hours:'08:00-17:00', cost:'Free entry', desc:'Stone carvings and local art in Masvingo town.'},
+    {id:'p17', name:'Lakeview Restaurant', dest:'Masvingo', cat:'food', lat:-20.2160, lng:31.0090, hours:'07:00-21:00', cost:'USD 18', desc:'Grills and sadza with a view of the lake.'}
+  ]
+};
+
+let db = load();
+function load(){ try { return JSON.parse(localStorage.getItem(DB_KEY)) || structuredClone(SEED); } catch(e){ return structuredClone(SEED); } }
+function save(){ try { localStorage.setItem(DB_KEY, JSON.stringify(db)); } catch(e){} }
+
+/* =====================================================================
+   2. GEOGRAPHY  (objectives 2 and 3: nearby search, distance, time)
+   Haversine gives straight-line km. Road distance is estimated at 1.3x.
+   ===================================================================== */
+function haversine(a, b){
+  const R = 6371, rad = x => x * Math.PI / 180;
+  const dLat = rad(b.lat - a.lat), dLng = rad(b.lng - a.lng);
+  const h = Math.sin(dLat/2)**2 + Math.cos(rad(a.lat)) * Math.cos(rad(b.lat)) * Math.sin(dLng/2)**2;
+  return 2 * R * Math.asin(Math.sqrt(h));
+}
+const road = km => km * 1.3;
+function fmtTime(min){ if (min < 1) return '<1 min'; if (min < 60) return Math.round(min) + ' min'; return Math.floor(min/60) + ' h ' + Math.round(min % 60) + ' min'; }
+const driveMin = km => road(km) / 45 * 60;
+const walkMin  = km => road(km) / 4.5 * 60;
+const dirUrl = (h, p) => `https://www.google.com/maps/dir/?api=1&origin=${h.lat},${h.lng}&destination=${p.lat},${p.lng}`;
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const $ = id => document.getElementById(id);
+
+/* =====================================================================
+   3. STATE + TOURIST UI
+   ===================================================================== */
+const state = { hotelId:null, cats:new Set(Object.keys(CATS)), plan:{} }; // plan: {placeId: dayNumber}
+
+function currentHotel(){ return db.hotels.find(h => h.id === state.hotelId); }
+
+function fillDests(){
+  const opts = DESTS.map(d => `<option>${d}</option>`).join('');
+  $('dest').innerHTML = opts;
+  document.querySelectorAll('.destSel').forEach(s => s.innerHTML = opts);
+  document.querySelectorAll('.catSel').forEach(s => s.innerHTML = Object.entries(CATS).map(([k,v]) => `<option value="${k}">${v}</option>`).join(''));
+  $('cats').innerHTML = Object.entries(CATS).map(([k,v]) => `<button type="button" class="chip on" data-cat="${k}">${v}</button>`).join('');
+}
+function fillHotels(){
+  const list = db.hotels.filter(h => h.dest === $('dest').value);
+  $('hotel').innerHTML = list.map(h => `<option value="${h.id}">${esc(h.name)}</option>`).join('');
+  state.hotelId = list[0]?.id || null;
+  state.plan = {};
+  refresh();
+}
+function nearby(){
+  const h = currentHotel(); if (!h) return [];
+  const r = +$('radius').value;
+  return db.places
+    .filter(p => p.dest === h.dest && state.cats.has(p.cat))
+    .map(p => ({...p, km: haversine(h, p)}))
+    .filter(p => p.km <= r)
+    .sort((a, b) => a.km - b.km);
+}
+function refresh(){
+  const h = currentHotel();
+  $('rv').textContent = $('radius').value;
+  $('hotelInfo').innerHTML = h ? `${esc(h.desc)} From USD ${esc(h.price)} per night.` : 'No hotels registered here yet.';
+  const list = nearby();
+  $('results').innerHTML = list.length ? list.map(p => `
+    <div class="place">
+      <h3>${esc(p.name)}<span class="tag">${CATS[p.cat]}</span></h3>
+      <div class="meta"><span class="dist">${road(p.km).toFixed(1)} km</span> by road &middot; ${fmtTime(driveMin(p.km))} by car &middot; ${fmtTime(walkMin(p.km))} on foot</div>
+      <div>${esc(p.desc)}</div>
+      <div class="meta">${esc(p.hours)} &middot; ${esc(p.cost)}</div>
+      <div class="row noprint" style="justify-content:flex-start">
+        <a href="${dirUrl(h, p)}" target="_blank" rel="noopener" class="btn alt sm" style="flex:none;text-decoration:none">Get directions</a>
+        <button class="btn sm" style="flex:none" data-add="${p.id}">${state.plan[p.id] ? 'In itinerary' : 'Add to itinerary'}</button>
+      </div>
+    </div>`).join('') : '<p class="empty">Nothing in this radius. Increase the radius or turn on more interests.</p>';
+  drawMap(h, list);
+  drawPlan();
+}
+
+/* ---------- map (Leaflet + OpenStreetMap) ---------- */
+let map, layer;
+function drawMap(h, list){
+  if (typeof L === 'undefined' || !h) { $('map').innerHTML = '<p class="empty" style="padding:16px">Map needs an internet connection.</p>'; return; }
+  if (!map){ map = L.map('map'); L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {attribution:'&copy; OpenStreetMap contributors', maxZoom:18}).addTo(map); }
+  if (layer) layer.remove();
+  layer = L.layerGroup().addTo(map);
+  const pts = [[h.lat, h.lng]];
+  L.circleMarker([h.lat, h.lng], {radius:11, color:'#10302d', fillColor:'#e8b130', fillOpacity:1, weight:3}).addTo(layer).bindPopup(`<b>${esc(h.name)}</b><br>Your stay`);
+  list.forEach(p => {
+    pts.push([p.lat, p.lng]);
+    L.circleMarker([p.lat, p.lng], {radius:7, color:'#1b7a78', fillColor:'#1b7a78', fillOpacity:.85}).addTo(layer)
+      .bindPopup(`<b>${esc(p.name)}</b><br>${road(p.km).toFixed(1)} km &middot; ${fmtTime(driveMin(p.km))} by car<br><a href="${dirUrl(h,p)}" target="_blank" rel="noopener">Directions</a>`);
+  });
+  map.fitBounds(pts, {padding:[30,30], maxZoom:14});
+  setTimeout(() => map.invalidateSize(), 50);
+}
+
+/* =====================================================================
+   4. ITINERARY  (objective 4)
+   ===================================================================== */
+function drawPlan(){
+  const n = Math.max(1, Math.min(10, +$('days').value || 1));
+  const h = currentHotel();
+  const ids = Object.keys(state.plan);
+  if (!ids.length){ $('plan').innerHTML = '<p class="empty">Add places from the list, or choose Suggest a plan.</p>'; return; }
+  let out = '';
+  for (let d = 1; d <= n; d++){
+    const items = ids.filter(id => state.plan[id] === d).map(id => db.places.find(p => p.id === id)).filter(Boolean);
+    const total = items.reduce((s, p) => s + driveMin(haversine(h, p)) * 2, 0);
+    out += `<div class="day"><h3>Day ${d}${items.length ? ` <span class="meta">(about ${fmtTime(total)} driving, return)</span>` : ''}</h3>` +
+      (items.length ? items.map(p => `<div class="row" style="margin:4px 0"><span>${esc(p.name)} <span class="meta">${road(haversine(h,p)).toFixed(1)} km</span></span>
+        <select data-move="${p.id}" class="noprint" style="width:auto;flex:none" aria-label="Move ${esc(p.name)} to day">${Array.from({length:n},(_, i) => `<option value="${i+1}" ${i+1===d?'selected':''}>Day ${i+1}</option>`).join('')}<option value="0">Remove</option></select></div>`).join('') : '<span class="empty">Free day.</span>') + '</div>';
+  }
+  $('plan').innerHTML = out;
+}
+function autoPlan(){
+  const n = Math.max(1, Math.min(10, +$('days').value || 1));
+  const list = nearby();
+  state.plan = {};
+  const perDay = Math.max(1, Math.ceil(Math.min(list.length, n * 3) / n));
+  list.slice(0, n * perDay).forEach((p, i) => state.plan[p.id] = Math.floor(i / perDay) + 1);
+  refresh();
+}
+
+/* =====================================================================
+   5. EVENTS
+   ===================================================================== */
+$('dest').onchange = fillHotels;
+$('hotel').onchange = e => { state.hotelId = e.target.value; state.plan = {}; refresh(); };
+$('radius').oninput = refresh;
+$('days').oninput = drawPlan;
+$('auto').onclick = autoPlan;
+$('clear').onclick = () => { state.plan = {}; refresh(); };
+$('print').onclick = () => window.print();
+$('cats').onclick = e => {
+  const b = e.target.closest('[data-cat]'); if (!b) return;
+  const c = b.dataset.cat;
+  state.cats.has(c) ? state.cats.delete(c) : state.cats.add(c);
+  b.classList.toggle('on'); refresh();
+};
+$('results').onclick = e => {
+  const id = e.target.dataset.add; if (!id) return;
+  if (state.plan[id]) delete state.plan[id]; else state.plan[id] = 1;
+  refresh();
+};
+$('plan').onchange = e => {
+  const id = e.target.dataset.move; if (!id) return;
+  +e.target.value === 0 ? delete state.plan[id] : state.plan[id] = +e.target.value;
+  refresh();
+};
+
+/* ---------- view switch ---------- */
+document.querySelector('nav').onclick = e => {
+  const v = e.target.dataset.view; if (!v) return;
+  document.querySelectorAll('nav button').forEach(b => b.classList.toggle('on', b === e.target));
+  $('explore').classList.toggle('hidden', v !== 'explore');
+  $('admin').classList.toggle('hidden', v !== 'admin');
+  if (v === 'explore' && map) setTimeout(() => map.invalidateSize(), 50);
+};
+
+/* =====================================================================
+   6. ADMIN  (objective 6)
+   ===================================================================== */
+$('unlock').onclick = () => {
+  if ($('pin').value === 'zim2026'){ $('lock').classList.add('hidden'); $('adminBody').classList.remove('hidden'); drawAdmin(); }
+  else alert('Wrong PIN. Try again.');
+};
+$('logout').onclick = () => {
+  $('adminBody').classList.add('hidden');
+  $('lock').classList.remove('hidden');
+  $('pin').value = '';
+};
+function drawAdmin(){
+  const rows = [...db.hotels.map(h => ({...h, kind:'hotel', type:'Hotel'})), ...db.places.map(p => ({...p, kind:'place', type:CATS[p.cat]}))];
+  $('adminTable').innerHTML = '<tr><th>Name</th><th>Type</th><th>Destination</th><th></th></tr>' +
+    rows.map(r => `<tr><td>${esc(r.name)}</td><td>${r.type}</td><td>${esc(r.dest)}</td><td><button class="btn alt sm" data-del="${r.kind}:${r.id}">Delete</button></td></tr>`).join('');
+}
+$('adminTable').onclick = e => {
+  const v = e.target.dataset.del; if (!v) return;
+  const [kind, id] = v.split(':');
+  if (!confirm('Delete this record?')) return;
+  if (kind === 'hotel') db.hotels = db.hotels.filter(x => x.id !== id); else db.places = db.places.filter(x => x.id !== id);
+  save(); drawAdmin(); fillHotels();
+};
+function addRecord(form, kind){
+  const f = Object.fromEntries(new FormData(form));
+  f.lat = +f.lat; f.lng = +f.lng; f.id = (kind === 'hotel' ? 'h' : 'p') + Date.now();
+  if (Math.abs(f.lat) > 90 || Math.abs(f.lng) > 180) return alert('Check the coordinates.');
+  (kind === 'hotel' ? db.hotels : db.places).push(f);
+  save(); form.reset(); drawAdmin(); fillHotels();
+}
+$('hf').onsubmit = e => { e.preventDefault(); addRecord(e.target, 'hotel'); };
+$('pf').onsubmit = e => { e.preventDefault(); addRecord(e.target, 'place'); };
+$('export').onclick = () => {
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([JSON.stringify(db, null, 2)], {type:'application/json'}));
+  a.download = 'zimbabwe-tourism-data.json'; a.click();
+};
+$('reset').onclick = () => { if (confirm('Replace all data with the sample data?')){ db = structuredClone(SEED); save(); drawAdmin(); fillHotels(); } };
+
+/* ---------- start ---------- */
+fillDests();
+fillHotels();
+
+</script>
+</body>
+</html>
